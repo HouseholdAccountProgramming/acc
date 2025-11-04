@@ -1,7 +1,7 @@
 개인 가계부 - CLI 애플리케이션
 개인 재정을 관리하기 위한 자바 기반의 명령줄 인터페이스(CLI) 애플리케이션입니다. 이 경량 도구는 사용자가 금융 거래 내역을 기록, 조회, 수정, 삭제할 수 있게 해주며, 데이터는 CSV 또는 JSON 파일 형식으로 영구적으로 저장됩니다.
 
-기능
+📝 기능
 금융 거래 내역 추가: 유형(수입/지출), 날짜, 금액, 카테고리, 설명을 포함한 거래 내역 기록
 
 내역 삭제: ID를 기준으로 거래 내역 삭제
@@ -16,111 +16,114 @@
 
 메뉴 기반 인터페이스: 번호로 된 메뉴 옵션을 통한 직관적인 내비게이션
 
-프로젝트 구조
+📂 프로젝트 구조
 src/
 └── main/
-    └── java/
-        └── com/
-            └── accountbook/
-                ├── AccountBookApp.java          # 메인 애플리케이션 시작점
-                ├── model/
-                │   └── LedgerItem.java          # 핵심 데이터 모델
-                ├── service/
-                │   └── LedgerService.java       # 비즈니스 로직 및 CRUD(생성, 읽기, 수정, 삭제) 작업
-                ├── ui/
-                │   └── CliInterface.java        # 명령줄 인터페이스
-                └── util/
-                    ├── ValidationUtil.java      # 입력 유효성 검사 유틸리티
-                    ├── FileFormat.java          # 파일 형식 열거형
-                    ├── CsvFileHandler.java      # CSV 파일 작업
-                    └── JsonFileHandler.java     # JSON 파일 작업
+    └── java/
+        └── com/
+            └── accountbook/
+                ├── AccountBookApp.java        # 메인 애플리케이션 시작점
+                ├── model/
+                │   └── LedgerItem.java        # 핵심 데이터 모델
+                ├── service/
+                │   └── LedgerService.java     # 비즈니스 로직 및 CRUD 작업
+                ├── ui/
+                │   └── CliInterface.java      # 명령줄 인터페이스
+                └── util/
+                    ├── ValidationUtil.java    # 입력 유효성 검사 유틸리티
+                    ├── FileFormat.java        # 파일 형식 열거형
+                    ├── CsvFileHandler.java    # CSV 파일 작업
+                    └── JsonFileHandler.java   # JSON 파일 작업
+🚀 시작하기
 요구 사항
 자바 8 이상
 
 외부 종속성(라이브러리) 없음
 
-컴파일
-옵션 1: javac (명령줄) 사용
-프로젝트 루트 디렉터리로 이동합니다:
-   bash    cd c:\accountbook    
+1. 컴파일
+프로젝트 루트 디렉터리(예: C:\b\accountbook)에서 아래 명령어를 실행하세요.
 
-모든 자바 파일을 컴파일합니다:
-C:\b\accountbook>javac -encoding UTF-8 -d . src\main\java\com\accountbook\*.java src\main\java\com\accountbook\model\*.java src\main\java\com\accountbook\service\*.java src\main\java\com\accountbook\ui\*.java src\main\java\com\accountbook\util\*.java
-echo 컴파일 완료!
-애플리케이션 실행
-기본 사용법
+(unmappable character 오류 방지를 위해 -encoding UTF-8 옵션을, 올바른 위치에 클래스 파일을 생성하기 위해 -d . 옵션을 사용합니다.)
+
+Bash
+
+javac -encoding UTF-8 -d . src/main/java/com/accountbook/*.java src/main/java/com/accountbook/model/*.java src/main/java/com/accountbook/service/*.java src/main/java/com/accountbook/ui/*.java src/main/java/com/accountbook/util/*.java
+2. 애플리케이션 실행
+기본 사용법 (기본 ledger.csv 파일 사용)
+
 Bash
 
 java com.accountbook.AccountBookApp
 사용자 지정 데이터 파일 사용
+
 Bash
 
 java com.accountbook.AccountBookApp my_ledger.csv
-사용 가이드
+📖 사용 가이드
 메인 메뉴
 애플리케이션은 계층적 메뉴 시스템을 제공합니다:
 
 ==== 개인 가계부 ====
 현재 파일 형식: CSV 형식
 1. 내역 관리
-   1.1 내역 추가
-   1.2 내역 삭제
+    1.1 내역 추가
+    1.2 내역 삭제
 2. 내역 조회
-   2.1 전체 보기
-   2.2 날짜 범위별 보기
-   2.3 카테고리별 보기
+    2.1 전체 보기
+    2.2 날짜 범위별 보기
+    2.3 카테고리별 보기
 3. 파일에 저장
 4. 파일 불러오기
 5. 파일 형식 변경
 6. 프로그램 종료
-내역 추가
-옵션 1(내역 관리)을 선택한 다음, 1(내역 추가)을 선택합니다.
 
-다음 정보를 입력합니다:
-   - 유형: 수입 또는 지출
-   - 날짜: YYYY-MM-DD 형식 (2025-10-01 또는 그 이후여야 함)
-   - 금액: 1억 이하의 양의 정수
-   - 카테고리: TOP 카테고리 중 하나(Food, Transport, Living, Shopping, Transfer, Hobby). 하위 카테고리는 애플리케이션 안내에 따라 선택
-   - 설명: 선택 사항, 최대 50자
+옵션 선택: _
+내역 추가
+1. 내역 관리 → 1.1 내역 추가를 선택합니다.
+
+다음 정보를 순서대로 입력합니다:
+
+유형: 수입 또는 지출
+
+날짜: YYYY-MM-DD 형식 (예: 2025-10-15)
+
+금액: 1억 이하의 양의 정수
+
+카테고리: Food, Transport, Living, Shopping, Transfer, Hobby 중 선택 (하위 카테고리는 안내에 따라 선택)
+
+설명: 선택 사항, 최대 50자
 
 내역 조회
+2. 내역 조회에서 원하는 옵션을 선택합니다.
+
 전체 보기: ID별로 정렬된 모든 내역을 보여줍니다.
 
-날짜 범위별 보기: 두 날짜 사이의 내역을 필터링합니다.
+날짜 범위별 보기: 시작 날짜와 종료 날짜를 입력하여 두 날짜 사이의 내역을 필터링합니다.
 
 카테고리별 보기: 특정 카테고리의 내역을 보여줍니다.
 
 내역 삭제
-옵션 1(내역 관리)을 선택한 다음, 2(내역 삭제)를 선택합니다.
+1. 내역 관리 → 1.2 내역 삭제를 선택합니다.
 
-시스템이 현재 내역을 ID와 함께 표시합니다.
-
-삭제하려는 내역의 ID를 입력합니다.
+시스템이 현재 내역을 ID와 함께 표시하며, 삭제하려는 내역의 ID를 입력합니다.
 
 파일 형식 관리
-옵션 5(파일 형식 변경)를 선택합니다.
+5. 파일 형식 변경을 선택합니다.
 
 현재 사용 중인 파일 형식과 지원되는 형식 목록이 표시됩니다.
 
 새로운 형식을 선택하면 기존 데이터가 새 형식으로 자동 변환됩니다.
 
-지원되는 형식:
-   - CSV 형식: 쉼표로 구분된 값 형식
-   - JSON 형식: JavaScript Object Notation 형식
-
-데이터 형식
-데이터는 선택한 형식에 따라 다음과 같이 저장됩니다:
-
-CSV 형식:
-```
+🗃️ 데이터 형식
+CSV 형식
 id,type,date,category,amount,description
+
 1,지출,2025-10-02,Food,12000,Lunch (점심)
 2,지출,2025-10-02,Transport,4500,Bus fare (버스 요금)
 3,지출,2025-10-03,Living,35000,Groceries (식료품)
-```
+JSON 형식
+JSON
 
-JSON 형식:
-```json
 {
   "items": [
     {
@@ -149,59 +152,16 @@ JSON 형식:
     }
   ]
 }
-```
+⚠️ 문제 해결
+컴파일 오류: 자바 8+가 설치되어 있는지, 그리고 JAVA_HOME 환경 변수가 올바르게 설정되었는지 확인하세요.
 
-입력 유효성 검사 규칙
-필드   	규칙                                                        
-날짜     	형식: YYYY-MM-DD, 2025-10-01 또는 그 이후여야 함              
-금액   	양의 정수, 선행 0 없음, 최대 100,000,000            
-카테고리	다음 중 하나여야 함: Food, Transport, Living, Shopping, Transfer, Hobby
-설명     	최대 50자, 특수문자로만 구성될 수 없음            
+파일 권한 오류: 애플리케이션 디렉터리에 쓰기 권한이 있는지 확인하거나, 관리자 권한으로 명령 프롬프트를 실행해 보세요.
 
-Export to Sheets
-오류 처리
-잘못된 입력은 특정 오류 메시지와 함께 재입력을 요구합니다.
+CSV/JSON 형식 문제: 기존 파일이 있다면 헤더 형식이 올바른지 확인하세요.
 
-파일 I/O 오류는 설명적인 메시지와 함께 보고됩니다.
+(CSV 헤더: id,type,date,category,amount,description)
 
-존재하지 않는 내역을 삭제하려 할 경우 적절한 오류 메시지가 표시됩니다.
-
-형식이 잘못된 CSV 데이터는 경고와 함께 건너뜁니다.
-
-예시 세션
-개인 가계부에 오신 것을 환영합니다!
-데이터 파일: ledger.csv
-기존 내역 0개를 불러왔습니다.
-
-==== 개인 가계부 ====
-1. 내역 관리
-   1.1 내역 추가
-   1.2 내역 삭제
-2. 내역 조회
-   2.1 전체 보기
-   2.2 날짜 범위별 보기
-   2.3 카테고리별 보기
-3. 파일에 저장
-4. 파일 불러오기
-5. 프로그램 종료
-
-옵션 선택: 1
-
-=== 내역 관리 ===
-1. 내역 추가
-2. 내역 삭제
-옵션 선택: 1
-
-=== 새 내역 추가 ===
-유형 입력 (수입/지출): 지출
-날짜 입력 (YYYY-MM-DD): 2025-10-15
-금액 입력: 25000
-카테고리 입력 (Food, Transport, Living, Shopping, Transfer, Hobby): Food
-설명 입력 (선택 사항, 최대 50자): 친구들과 저녁 식사
-1개의 내역을 ledger.csv에 저장했습니다.
-ID 1번으로 내역이 성공적으로 추가되었습니다.
-
-향후 개선 사항 (2단계)
+💡 향후 개선 사항 (2단계)
 통계 계산 (월별/카테고리별 합계)
 
 무결성 검사를 포함한 고급 파일 처리
@@ -210,22 +170,4 @@ ID 1번으로 내역이 성공적으로 추가되었습니다.
 
 포괄적인 단위 테스트
 
-문제 해결
-일반적인 문제
-컴파일 오류: 자바 8+가 설치되어 있고 JAVA_HOME이 올바르게 설정되었는지 확인하세요.
-
-파일 권한 오류: 애플리케이션 디렉터리에 쓰기 권한이 있는지 확인하세요.
-
-CSV 형식 문제: CSV 파일(있는 경우)의 헤더 형식이 올바른지 확인하세요. (id,type,date,category,amount,description)
-
-도움 받기
-문제가 발생하면:
-
-모든 자바 파일이 올바른 디렉터리 구조에 있는지 확인하세요.
-
-java -version 명령어로 자바 버전을 확인하세요.
-
-CSV 파일(있는 경우)의 헤더 형식이 올바른지 확인하세요.
-
-라이선스
-이 프로젝트는 자바 학습 및 개발 연습의 일환으로 교육 목적으로 제작되었습니다.
+이 프로젝트는 자바 학습 및 개발 연습을 위한 교육 목적으로 제작되었습니다.
