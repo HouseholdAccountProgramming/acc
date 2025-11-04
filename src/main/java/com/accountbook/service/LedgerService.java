@@ -334,4 +334,8 @@ public class LedgerService {
         System.out.println("====================================================================================");
         System.out.printf("총 항목 수: %d%n", itemsToDisplay.size());
     }
+
+    public boolean editItemField(int id, int fieldChoice, Object newValue) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

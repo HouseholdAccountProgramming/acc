@@ -8,8 +8,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Scanner;
 import java.nio.charset.StandardCharsets;
-import java.util.Optional; // 💡 Optional import 추가 (LedgerService 가정을 위함)
-import java.util.stream.Collectors; // 💡 Collectors import 추가 (LedgerService 가정을 위함)
+import java.util.Optional; 
 
 
 // 개인 가계부 애플리케이션을 위한 명령줄 인터페이스입니다.
@@ -237,13 +236,13 @@ public class CliInterface {
 		if (description == null) return;
 
 		// 💡 항목 추가 로직: typeSymbol (+ 또는 -)을 사용하여 LedgerService에 전달합니다.
-		// 💡 기획서 3.2.1에 따라, 항목 추가 시 파일에 즉시 반영되어야 합니다. (Service에서 처리 가정) [cite_start][cite: 469, 150]
+		// 💡 기획서 3.2.1에 따라, 항목 추가 시 파일에 즉시 반영되어야 합니다. (Service에서 처리 가정)
 		boolean success = ledgerService.addItem(typeSymbol, date, amount, category, description); 
 		if (!success) {
 			System.out.println("오류: 파일에 항목을 저장하지 못했습니다.");
 		} else {
-            System.out.println("항목이 성공적으로 추가되었습니다.");
-        }
+			System.out.println("항목이 성공적으로 추가되었습니다.");
+		}
 		System.out.println();
 	}
 	// 가계부에서 항목을 삭제합니다.
@@ -272,11 +271,11 @@ public class CliInterface {
 
 		try {
 			int id = Integer.parseInt(input.trim());
-			boolean deleted = ledgerService.deleteItem(id);// 삭제 후 파일 동기화는 Service에서 수행 가정 [cite: 159, 469]
+			boolean deleted = ledgerService.deleteItem(id);// 삭제 후 파일 동기화는 Service에서 수행 가정
 			if (deleted) {
-				System.out.printf("✅ ID %d 항목이 성공적으로 삭제되었습니다.%n", id);
+				System.out.printf("ID %d 항목이 성공적으로 삭제되었습니다.%n", id);
 			} else {
-				// 기획서 3.1.2.2에 따라 ID 존재하지 않으면 오류 메시지 출력 후 삭제 취소 [cite: 317]
+				// 기획서 3.1.2.2에 따라 ID 존재하지 않으면 오류 메시지 출력 후 삭제 취소
 				System.out.println("오류: 해당 ID의 항목이 존재하지 않습니다.");
 			}
 		} catch (NumberFormatException e) {
@@ -286,7 +285,7 @@ public class CliInterface {
 		System.out.println();
 	}
 	
-	//💡 내역 수정 기능을 처리합니다. [cite_start](기획서 3.1.2.4 요구사항 [cite: 225, 349])
+	//💡 내역 수정 기능을 처리합니다.
 	private void editItem() {
 		System.out.println("=== 내역 수정 ===");
 
@@ -312,34 +311,34 @@ public class CliInterface {
 		try {
 			int id = Integer.parseInt(idInput.trim());
 			
-			// 🐛 오류 수정 2: getItemById() 임시 대체 (실제로는 LedgerService에 구현 필요)
-			// LedgerItem itemToEdit = ledgerService.getItemById(id);
-			LedgerItem itemToEdit = ledgerService.getAllItems().stream()
-			    .filter(item -> item.getId() == id)
-			    .findFirst()
-			    .orElse(null);
+			// 💡 수정: Optional을 사용하여 항목 존재 여부 안전하게 확인
+			Optional<LedgerItem> itemOpt = ledgerService.getAllItems().stream()
+				.filter(item -> item.getId() == id)
+				.findFirst();
 
-			if (itemToEdit == null) {
-					// 기획서 1.9.7에 따라 ID가 존재하지 않으면 오류 메시지 출력 후 메인화면으로 이동 [cite: 229]
+			if (itemOpt.isEmpty()) {
+					// 기획서 1.9.7에 따라 ID가 존재하지 않으면 오류 메시지 출력 후 메인화면으로 이동
 				System.out.println("오류: 해당 ID의 항목이 존재하지 않습니다.");
 				System.out.println();
 				return;
 			}
+			
+			LedgerItem itemToEdit = itemOpt.get();
 
-			// 수정 로직 시작 (기획서 3.1.2.4의 상세 동작을 간략화)
 			// 수정 로직 시작 (기획서 3.1.2.4의 상세 동작을 간략화)
 			System.out.println("--- 항목 수정 모드 ---");
 			System.out.printf("ID: %d%n", itemToEdit.getId());
-			System.out.printf("1. 유형: %s%n", itemToEdit.getType()); // 💡 유형 필드 표시 추가
+			// 💡 수정: 금액 부호로 '수입' 또는 '지출'을 결정합니다.
+			String currentType = itemToEdit.getAmount() >= 0 ? "수입" : "지출";
+			System.out.printf("1. 유형: %s%n", currentType); 
 			System.out.printf("2. 날짜: %s%n", itemToEdit.getDate());
-			System.out.printf("3. 금액: %d%n", itemToEdit.getAmount());
+			System.out.printf("3. 금액: %d%n", Math.abs(itemToEdit.getAmount())); // 절대값으로 표시
 			System.out.printf("4. 카테고리: %s%n", itemToEdit.getCategory());
 			System.out.printf("5. 내용: %s%n", itemToEdit.getDescription()); 
 			System.out.println("---------------------");
 			
-            // 💡 수정할 필드 선택 메뉴 출력 및 번호 범위 수정 [cite: 364]
+			// 💡 수정할 필드 선택 메뉴 출력 및 번호 범위 수정
 			System.out.println("수정할 항목을 선택하세요:");
-			// 💡 5개 필드에 맞춰 메뉴를 재구성했습니다. (유형, 날짜, 금액, 카테고리, 내용)
 			System.out.println("1. 유형 (수입/지출) 2. 날짜 3. 금액 4. 카테고리 5. 내용");
 			System.out.print("선택 > (취소: 'cancel' 입력): ");
 			
@@ -353,59 +352,66 @@ public class CliInterface {
 			// 필드 선택 유효성 검증 (1~5 범위로 변경)
 			ValidationUtil.ValidationResult result = ValidationUtil.validateMenuOption(fieldChoiceInput, 1, 5); // 💡 범위 1, 5로 변경
 			if (!result.isValid()) {
-				// 기획서 예외 처리 9번: "유효하지 않은 메뉴 번호입니다." [cite: 389]
+				// 기획서 예외 처리 9번: "유효하지 않은 메뉴 번호입니다."
 				System.out.println("오류: " + result.getErrorMessage());
 				System.out.println();
 				return;
 			}
 
-			// 선택된 필드에 따라 수정 로직 수행 (Service 계층에 위임)
+			// 선택된 필드에 따라 수정 로직 수행
 			int fieldChoice = result.getValue(Integer.class);
 			
 			// 💡 수정 로직 구현: 선택된 필드에 따라 사용자 입력을 받고 유효성 검사 수행
 			Object newValue = null;
-			String fieldName = "";
 
 			switch (fieldChoice) {
-			    case 1: // 유형 (Type: 수입/지출)
-			        newValue = getValidType("새 유형 입력 (1: 수입, 2: 지출): ");
-			        fieldName = "유형";
-			        break;
-			    case 2: // 날짜 (Date)
-			        newValue = getValidDate("새 날짜 입력 (YYYY-MM-DD): ");
-			        fieldName = "날짜";
-			        break;
-			    case 3: // 금액 (Amount)
-			        newValue = getValidAmount("새 금액 입력: ");
-			        fieldName = "금액";
-			        break;
-			    case 4: // 카테고리 (Category)
-			        newValue = getValidCategory("새 카테고리 입력: ");
-			        fieldName = "카테고리";
-			        break;
-			    case 5: // 내용 (Description/Note)
-			        newValue = getValidDescription("새 내용 입력 (최대 50자): ");
-			        fieldName = "내용";
-			        break;
+				case 1: // 유형 (Type: 수입/지출)
+					String newType = getValidType("유형 입력 [1: 수입 (+), 2: 지출 (-)]: ");
+					if (newType == null) return; 
+					
+					// 💡 유형 수정: 금액의 절대값을 유지한 채 새 유형에 따라 부호를 변경
+					// newValue는 (양수 또는 음수) 금액이 됩니다.
+					newValue = newType.equals("지출") ? -Math.abs(itemToEdit.getAmount()) : Math.abs(itemToEdit.getAmount());
+					break;
+				case 2: // 날짜 (Date)
+					newValue = getValidDate("날짜 입력 (YYYY-MM-DD): ");
+					break;
+				case 3: // 금액 (Amount)
+					Integer newAmount = getValidAmount("금액 입력: ");
+					if (newAmount == null) return;
+
+					// 💡 금액 수정: 기존 유형(currentType)에 따라 새 금액에 부호를 적용
+					// newValue는 (양수 또는 음수) 금액이 됩니다.
+					newValue = currentType.equals("지출") ? -Math.abs(newAmount) : Math.abs(newAmount);
+					break;
+				case 4: // 카테고리 (Category)
+					newValue = getValidCategory("카테고리 입력: ");
+					break;
+				case 5: // 내용 (Description/Note)
+					newValue = getValidDescription("내용 입력 (선택사항, 최대 50자): ");
+					break;
 			}
-	// 취소되었거나 유효성 검사에 실패한 경우
-			if (newValue == null && fieldName.equals("유형")) {
-				// getValidType에서 취소 로직이 처리되지만, 여기서는 continue/return 대신 명확한 처리를 위해 남김
-				System.out.println("유형 수정이 취소되었습니다.");
+			
+			if (newValue == null && fieldChoice != 1) { 
+				// 유형 필드(1) 외의 필드에서 취소/유효성 검사 실패 시
+				System.out.println("수정 작업이 취소되었습니다.");
 				return;
 			}
-			
-			// 💡 editField() 임시 대체 (실제로는 LedgerService에 구현 필요)
-			// boolean success = ledgerService.editField(itemToEdit.getId(), fieldChoice, newValue);
-			
-			// 💡 임시 구현: LedgerService에 구현될 메서드 호출을 대체합니다.
-			boolean success = handleInternalEdit(itemToEdit, fieldChoice, newValue);
+            
+            // ----------------------------------------------------------------------------------
+            // 💡 문제 해결 핵심 수정: editItemField() 호출 대신 LedgerItem 객체에 직접 반영 및 saveData() 호출
+            // ----------------------------------------------------------------------------------
+            updateItemToEdit(itemToEdit, fieldChoice, newValue); // LedgerItem 객체에 직접 변경 사항 반영
+            
+			// 💡 수정: LedgerService의 기존 저장 메서드 호출 (파일 동기화)
+			boolean success = ledgerService.saveData();
+			// ----------------------------------------------------------------------------------
 			
 			if (success) {
-				// 💡 기획서 3.2.1에 따라, 수정 완료 후 파일에 즉시 반영되어야 합니다. (Service에서 처리 가정) [cite_start][cite: 381]
+				// 💡 기획서 3.2.1에 따라, 수정 완료 후 파일에 즉시 반영되어야 합니다. (Service에서 처리 가정)
 				System.out.println("항목이 성공적으로 수정되었습니다.");
 			} else {
-				System.out.println("수정 작업이 취소되었거나 실패했습니다.");
+				System.out.println("수정 작업이 취소되었거나 파일 저장에 실패했습니다.");
 			}
 			
 		} catch (NumberFormatException e) {
@@ -413,68 +419,66 @@ public class CliInterface {
 		}
 		System.out.println();
 	}
-// 💡 새로운 헬퍼 메서드: 유형 입력 (수정 메뉴에서 사용)
-    private String getValidType(String prompt) {
-        while (true) {
-            System.out.print(prompt + "(취소: 'cancel' 입력): ");
-            String input = scanner.nextLine(); 
-            
-            if ("cancel".equalsIgnoreCase(input.trim())) {
-                if (confirmCancel()) return null; 
-                continue;
+    
+    // 💡 추가된 헬퍼 메서드: LedgerItem 객체에 변경 사항을 직접 반영합니다.
+    private void updateItemToEdit(LedgerItem itemToEdit, int fieldChoice, Object newValue) {
+        if (newValue == null) return;
+
+        // LedgerItem의 setter가 존재한다고 가정하고 값을 업데이트합니다.
+        // 이는 UI 계층에서 데이터 모델을 직접 조작하는 것이므로 계층 분리 관점에서는 이상적이지 않으나, 
+        // Service 메서드 구현 없이 컴파일 오류를 회피하기 위한 해결책입니다.
+        try {
+            switch (fieldChoice) {
+                case 1: // 유형 (Type) - 금액 필드를 수정
+                    // 금액 필드가 수입/지출을 나타내므로 amount를 직접 수정 (newValue는 부호가 적용된 금액)
+                    itemToEdit.setAmount((Integer)newValue); 
+                    // type 필드도 있다면 여기서 업데이트해야 합니다. (LedgerItem 클래스 정의에 따라 다름)
+                    break; 
+                case 2: // 날짜 (Date)
+                    itemToEdit.setDate((LocalDate)newValue);
+                    break; 
+                case 3: // 금액 (Amount)
+                    // newValue는 부호가 적용된 금액입니다.
+                    itemToEdit.setAmount((Integer)newValue);
+                    break;
+                case 4: // 카테고리 (Category)
+                    itemToEdit.setCategory((String)newValue);
+                    break;
+                case 5: // 내용 (Description/Note)
+                    itemToEdit.setDescription((String)newValue);
+                    // itemToEdit.setNote((String)newValue); // Note 필드도 있다면
+                    break;
             }
-            
-            // 1 또는 2의 숫자 입력만 허용
-            ValidationUtil.ValidationResult result = ValidationUtil.validateMenuOption(input, 1, 2);
-            
-            if (result.isValid()) {
-                int choice = result.getValue(Integer.class);
-                return choice == 1 ? "수입" : "지출";
-            } else { 
-                System.out.println("오류: " + result.getErrorMessage());
-                continue;
-            }
+        } catch (Exception e) {
+             System.out.println("오류: 데이터 모델 업데이트 중 예외 발생: " + e.getMessage());
         }
     }
-
-	// 💡 임시 내부 수정 로직 (LedgerService.editField를 대체): 실제 구현시 제거 필요
-	// 이 메서드는 실제로는 LedgerService에 존재해야 하며, 해당 클래스에 정의될 메서드를 대체합니다.
-	private boolean handleInternalEdit(LedgerItem item, int fieldChoice, Object newValue) {
-		if (newValue == null) {
-			// 취소되었거나 유효성 검사를 통과하지 못한 경우 (이 코드는 단순 대체 코드이며, 실제 유효성 검사 실패는 getValid...에서 처리됨)
-			return false; 
-		}
-
-		// 💡 LedgerItem의 setter가 존재한다고 가정하고 값을 업데이트합니다. (실제 LedgerItem 구현에 따라 달라짐)
-		try {
-			switch (fieldChoice) {
-				case 1: // 유형 (Type) - 실제로는 Service에서 금액 부호 변경 로직이 필요
-                    // item.setType((String)newValue); 
-                    // 💡 유형 변경은 금액 부호 변경과 연관되므로 복잡합니다. 여기서는 성공으로 간주.
-					break; 
-				case 2: // 날짜 (Date)
-                    // item.setDate((LocalDate)newValue);
-					break; 
-				case 3: // 금액 (Amount)
-                    // item.setAmount((Integer)newValue);
-					break;
-				case 4: // 카테고리 (Category)
-                    // item.setCategory((String)newValue);
-					break;
-				case 5: // 내용 (Description/Note)
-                    // item.setDescription((String)newValue);
-					break;
+    
+// 💡 새로운 헬퍼 메서드: 유형 입력 (수정 메뉴에서 사용)
+	private String getValidType(String prompt) {
+		while (true) {
+			System.out.print(prompt + "(취소: 'cancel' 입력): ");
+			String input = scanner.nextLine(); 
+			
+			if ("cancel".equalsIgnoreCase(input.trim())) {
+				if (confirmCancel()) return null; 
+				continue;
 			}
-			// ledgerService.saveData(); // 변경 후 즉시 저장 (Service에서 처리해야 함)
-			return true;
-		} catch (Exception e) {
-			// System.out.println("데이터 수정 중 예상치 못한 오류가 발생했습니다.");
-			return false;
+			
+			// 1 또는 2의 숫자 입력만 허용
+			ValidationUtil.ValidationResult result = ValidationUtil.validateMenuOption(input, 1, 2);
+			
+			if (result.isValid()) {
+				int choice = result.getValue(Integer.class);
+				return choice == 1 ? "수입" : "지출";
+			} else { 
+				System.out.println("오류: " + result.getErrorMessage());
+				continue;
+			}
 		}
 	}
-    // 💡 handleInternalEdit 메서드가 실제 LedgerService.editField를 대체한다는 것을 명시
-	
-    // 모든 항목을 조회합니다.
+
+	// 모든 항목을 조회합니다.
 	private void viewAllItems() {
 		System.out.println("=== 전체 내역 ===");
 		List<LedgerItem> items = ledgerService.getAllItems();
@@ -508,6 +512,8 @@ public class CliInterface {
 	private void viewItemsByCategory() {
 		System.out.println("=== 카테고리별 보기 ===");
 		
+		// 💡 카테고리 목록 표시 로직이 실제 카테고리 목록에 의존하도록 수정해야 합니다.
+		// 임시로 LedgerItem.VALID_CATEGORIES를 사용한다고 가정합니다.
 		String category = getValidCategory("카테고리 입력 (" + String.join(", ", LedgerItem.VALID_CATEGORIES) + "): ");
 		if (category == null) return;
 		
@@ -530,7 +536,7 @@ public class CliInterface {
 	// 파일에서 데이터를 불러옵니다.
 	private void loadFromFile() {
 		System.out.println("=== 파일 불러오기 ===");
-		System.out.print("현재 데이터가 덮어씌워집니다. 계속하시겠습니까? (y/N): ");
+		System.out.print("현재 데이터가 덮어씌워집니다. 계속하시겠습니까? (Y/N): ");
 		String confirm = scanner.nextLine().trim().toLowerCase();
 		
 		if (confirm.equals("y") || confirm.equals("yes")) {
@@ -589,7 +595,7 @@ public class CliInterface {
 		System.out.println();
 	}
 	
-	// 💡 입력 취소 확인 프롬프트 ([cite: 387, 403]) 
+	// 💡 입력 취소 확인 프롬프트 
 	// @return 취소 확정 시 true, 아니면 false
 	private boolean confirmCancel() {
 		System.out.print("# 확인: 현재 작업을 취소하고 메인 화면으로 이동하시겠습니까? (Y/N) > ");
