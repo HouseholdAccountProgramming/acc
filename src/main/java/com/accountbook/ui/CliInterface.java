@@ -421,6 +421,7 @@ public class CliInterface {
 	}
     
     // 💡 추가된 헬퍼 메서드: LedgerItem 객체에 변경 사항을 직접 반영합니다.
+    // 💡 추가된 헬퍼 메서드: LedgerItem 객체에 변경 사항을 직접 반영합니다.
     private void updateItemToEdit(LedgerItem itemToEdit, int fieldChoice, Object newValue) {
         if (newValue == null) return;
 
@@ -428,26 +429,31 @@ public class CliInterface {
         // 이는 UI 계층에서 데이터 모델을 직접 조작하는 것이므로 계층 분리 관점에서는 이상적이지 않으나, 
         // Service 메서드 구현 없이 컴파일 오류를 회피하기 위한 해결책입니다.
         try {
-            switch (fieldChoice) {
-                case 1: // 유형 (Type) - 금액 필드를 수정
-                    // 금액 필드가 수입/지출을 나타내므로 amount를 직접 수정 (newValue는 부호가 적용된 금액)
-                    itemToEdit.setAmount((Integer)newValue); 
-                    // type 필드도 있다면 여기서 업데이트해야 합니다. (LedgerItem 클래스 정의에 따라 다름)
-                    break; 
-                case 2: // 날짜 (Date)
-                    itemToEdit.setDate((LocalDate)newValue);
-                    break; 
-                case 3: // 금액 (Amount)
-                    // newValue는 부호가 적용된 금액입니다.
-                    itemToEdit.setAmount((Integer)newValue);
-                    break;
-                case 4: // 카테고리 (Category)
-                    itemToEdit.setCategory((String)newValue);
-                    break;
-                case 5: // 내용 (Description/Note)
-                    itemToEdit.setDescription((String)newValue);
-                    // itemToEdit.setNote((String)newValue); // Note 필드도 있다면
-                    break;
+            if (fieldChoice == 1 || fieldChoice == 3) {
+                // 금액(newValue)은 이미 CliInterface에서 부호가 적용된 Integer 금액입니다.
+                itemToEdit.setAmount((Integer)newValue);
+                
+                // 💡 핵심 로직: 금액 부호에 따라 type 필드를 명시적으로 업데이트
+                String newType;
+                if ((Integer)newValue >= 0) {
+                    newType = "수입 (+)";
+                } else {
+                    newType = " 지출 (-)";
+                }
+                itemToEdit.setType(newType); // LedgerItem의 setType() 메서드를 호출하여 유형 동기화
+                
+            } else {
+                switch (fieldChoice) {
+                    case 2: // 날짜 (Date)
+                        itemToEdit.setDate((LocalDate)newValue);
+                        break; 
+                    case 4: // 카테고리 (Category)
+                        itemToEdit.setCategory((String)newValue);
+                        break;
+                    case 5: // 내용 (Description/Note)
+                        itemToEdit.setDescription((String)newValue);
+                        break;
+                }
             }
         } catch (Exception e) {
              System.out.println("오류: 데이터 모델 업데이트 중 예외 발생: " + e.getMessage());
