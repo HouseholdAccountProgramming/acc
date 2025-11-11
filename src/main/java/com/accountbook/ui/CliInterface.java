@@ -4,100 +4,50 @@ import com.accountbook.model.LedgerItem;
 import com.accountbook.service.LedgerService;
 import com.accountbook.util.FileFormat;
 import com.accountbook.util.ValidationUtil;
+
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 import java.nio.charset.StandardCharsets;
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 // 개인 가계부 애플리케이션을 위한 명령줄 인터페이스입니다.
 public class CliInterface {
 
-	// 상위 카테고리 6개
-	private static final String[] MAIN_CATEGORIES = {
+	// 기본 제공 카테고리 6개 (삭제/수정 불가)
+	private static final List<String> BASE_CATEGORIES = Arrays.asList(
 			"Food",
 			"Transport",
 			"Living",
 			"Shopping",
 			"Transfer",
-			"Hobby"
-	};
+			"Hobby");
 
-	// 각 상위 카테고리마다 하위 카테고리 5개씩
-	private static final String[][] SUB_CATEGORIES = {
-			// 1. Food
-			{
-					"Groceries",
-					"Dining Out",
-					"Beverages & Cafe",
-					"Snacks & Desserts",
-					"Health & Supplements"
-			},
-			// 2. Transport
-			{
-					"Public Transport",
-					"Private Vehicles",
-					"Railroad",
-					"Aviation",
-					"Personal Mobility"
-			},
-			// 3. Living
-			{
-					"Housing",
-					"Utilities/Communication",
-					"Furniture/Interior",
-					"Cleaning/Hygiene Supplies",
-					"Healthcare/Health"
-			},
-			// 4. Shopping
-			{
-					"Clothes",
-					"Electronics",
-					"Cosmetics/Beauty",
-					"Recreational Goods",
-					"Subscription Services"
-			},
-			// 5. Transfer
-			{
-					"Bank Transfer",
-					"Credit Card Payment",
-					"Savings/Investment",
-					"Currency Exchange",
-					"ATM Withdrawal/Deposit"
-			},
-			// 6. Hobby
-			{
-					"Entertainment",
-					"Sports/Fitness",
-					"Learning/Self-Development",
-					"Culture/Arts",
-					"Travel/Leisure"
-			}
-	};
+	// 사용자 지정 카테고리 (7~10번에 해당, 최대 4개)
+	private final List<String> customCategories = new ArrayList<>();
 
 	private final Scanner scanner;
 	private final LedgerService ledgerService;
 	private boolean running;
 
 	public CliInterface() {
-		// 💡 수정: 생성 시 인코딩을 StandardCharsets.UTF_8로 명시
+		// 생성 시 인코딩을 UTF-8로 명시
 		this.scanner = new Scanner(System.in, StandardCharsets.UTF_8.name());
 		this.ledgerService = new LedgerService();
 		this.running = true;
 	}
 
 	public CliInterface(String fileName) {
-		// 💡 수정: 생성 시 인코딩을 StandardCharsets.UTF_8로 명시
 		this.scanner = new Scanner(System.in, StandardCharsets.UTF_8.name());
 		this.ledgerService = new LedgerService(fileName);
 		this.running = true;
 	}
 
 	// CLI 애플리케이션을 시작합니다.
-
 	public void start() {
 		System.out.println("개인 가계부에 오신 것을 환영합니다!");
-		// 💡 주의: 기획서에 파일명을 명시적으로 출력하라는 내용은 없으나, 편의상 유지.
 		System.out.printf("데이터 파일: %s%n", ledgerService.getFileName());
 		System.out.printf("기존 항목 %d개를 불러왔습니다.%n%n", ledgerService.getItemCount());
 
@@ -117,13 +67,13 @@ public class CliInterface {
 		System.out.println("1. 내역 관리");
 		System.out.println(" 1.1 내역 추가");
 		System.out.println(" 1.2 내역 삭제");
-		System.out.println(" 1.3 내역 수정"); // Edit
+		System.out.println(" 1.3 내역 수정");
 		System.out.println("2. 내역 조회");
 		System.out.println(" 2.1 전체 보기");
 		System.out.println(" 2.2 날짜 범위별 보기");
 		System.out.println(" 2.3 카테고리별 보기");
-		System.out.println("3. 파일 불러오기"); // Load
-		System.out.println("4. 파일 형식 변경"); // Change Format
+		System.out.println("3. 파일 불러오기");
+		System.out.println("4. 파일 형식 변경");
 		System.out.println("5. 프로그램 종료");
 		System.out.println();
 		System.out.print("옵션 선택: ");
@@ -132,7 +82,6 @@ public class CliInterface {
 	// 메인 메뉴 선택을 처리합니다.
 	private void handleMainMenuChoice() {
 		String input = scanner.nextLine();
-		// 💡 메인 메뉴 항목이 6개에서 5개로 변경되었으므로, 범위도 1~5로 변경
 		ValidationUtil.ValidationResult result = ValidationUtil.validateMenuOption(input, 1, 5);
 
 		if (!result.isValid()) {
@@ -151,31 +100,27 @@ public class CliInterface {
 			case 2:
 				handleViewItemsMenu();
 				break;
-			// 💡 case 3: 기존의 파일 저장(saveToFile)이 삭제되고, 파일 불러오기(loadFromFile)가 3번으로 이동
 			case 3:
 				loadFromFile();
 				break;
-			// 💡 case 4: 파일 형식 변경(changeFileFormat)이 4번으로 이동
 			case 4:
 				changeFileFormat();
 				break;
-			// 💡 case 5: 프로그램 종료가 5번으로 이동
 			case 5:
 				running = false;
 				break;
 		}
 	}
 
-	// 내역 관리 서브메뉴를 처리합니다.
+	// 내역 관리 서브메뉴
 	private void handleManageItemsMenu() {
 		System.out.println("=== 내역 관리 ===");
 		System.out.println("1. 내역 추가");
 		System.out.println("2. 내역 삭제");
-		System.out.println("3. 내역 수정"); // 💡 내역 수정 메뉴 추가
+		System.out.println("3. 내역 수정");
 		System.out.print("옵션 선택: ");
 
 		String input = scanner.nextLine();
-		// 💡 내역 관리 항목이 2개에서 3개로 변경되었으므로, 범위도 1~3으로 변경
 		ValidationUtil.ValidationResult result = ValidationUtil.validateMenuOption(input, 1, 3);
 
 		if (!result.isValid()) {
@@ -194,15 +139,14 @@ public class CliInterface {
 			case 2:
 				deleteItem();
 				break;
-			// 💡 case 3: 내역 수정 기능 추가
 			case 3:
 				editItem();
 				break;
 		}
 	}
 
-	// 내역 조회 서브메뉴를 처리합니다.
-	private void handleViewItemsMenu() { // 💡 void 키워드 중복 제거 (수정 완료)
+	// 내역 조회 서브메뉴
+	private void handleViewItemsMenu() {
 		System.out.println("=== 내역 조회 ===");
 		System.out.println("1. 전체 보기");
 		System.out.println("2. 날짜 범위별 보기");
@@ -238,21 +182,17 @@ public class CliInterface {
 	private void addItem() {
 		System.out.println("=== 새 내역 추가 ===");
 
-		String type; // "수입" 또는 "지출"이 저장될 변수
-
+		String type;
 		while (true) {
-			// 💡 수정: 유형 입력을 '수입/지출' 대신 '1/2' 숫자로 받도록 변경
 			System.out.print("유형 입력 [1: 수입 (+), 2: 지출 (-)]: ");
 			String input = scanner.nextLine();
 
-			// 취소 기능 구현을 위한 'cancel' 체크 (기획서 3.1.2.4 및 3.1.2.5 참고)
 			if ("cancel".equalsIgnoreCase(input.trim())) {
 				if (confirmCancel())
 					return;
 				continue;
 			}
 
-			// ValidationUtil을 사용하여 입력값의 유효성(1 또는 2) 검증
 			ValidationUtil.ValidationResult result = ValidationUtil.validateMenuOption(input, 1, 2);
 
 			if (!result.isValid()) {
@@ -261,48 +201,35 @@ public class CliInterface {
 			}
 
 			int choice = result.getValue(Integer.class);
-			if (choice == 1) { // 1 선택 시 수입
-				type = "수입";
-				break;
-			} else { // 2 선택 시 지출
-				type = "지출";
-				break;
-			}
+			type = (choice == 1) ? "수입" : "지출";
+			break;
 		}
-		// 날짜 가져오기
+
 		LocalDate date = getValidDate("날짜 입력 (YYYY-MM-DD): ");
 		if (date == null)
 			return;
 
-		// 금액 가져오기
 		Integer amount = getValidAmount("금액 입력: ");
 		if (amount == null)
 			return;
 
-		// LedgerService에 전달할 최종 부호를 여기서 결정합니다.
 		String typeSymbol;
-
-		// 💡 금액 부호 적용 로직: type 변수 ("수입" 또는 "지출")을 사용하여 정확히 비교합니다.
 		if (type.equals("지출")) {
-			amount = -Math.abs(amount); // 지출은 음수로 저장
+			amount = -Math.abs(amount);
 			typeSymbol = " 지출 (-)";
-		} else { // type.equals("수입")
-			amount = Math.abs(amount); // 수입은 양수로 저장
+		} else {
+			amount = Math.abs(amount);
 			typeSymbol = "수입 (+)";
 		}
 
-		// 카테고리 가져오기 (숫자 선택)
 		String category = selectCategory(scanner);
 		if (category == null)
 			return;
 
-		// 설명 가져오기
 		String description = getValidDescription("설명 입력 (선택 사항, 최대 50자 이내): ");
 		if (description == null)
 			return;
 
-		// 💡 항목 추가 로직: typeSymbol (+ 또는 -)을 사용하여 LedgerService에 전달합니다.
-		// 💡 기획서 3.2.1에 따라, 항목 추가 시 파일에 즉시 반영되어야 합니다. (Service에서 처리 가정)
 		boolean success = ledgerService.addItem(typeSymbol, date, amount, category, description);
 		if (!success) {
 			System.out.println("오류: 파일에 항목을 저장하지 못했습니다.");
@@ -312,7 +239,7 @@ public class CliInterface {
 		System.out.println();
 	}
 
-	// 가계부에서 항목을 삭제합니다.
+	// 내역 삭제
 	private void deleteItem() {
 		System.out.println("=== 내역 삭제 ===");
 
@@ -322,7 +249,6 @@ public class CliInterface {
 			return;
 		}
 
-		// 현재 항목 표시
 		System.out.println("현재 항목:");
 		ledgerService.displayItems(ledgerService.getAllItems());
 		System.out.println();
@@ -330,20 +256,17 @@ public class CliInterface {
 		System.out.print("삭제할 항목의 ID 입력: ");
 		String input = scanner.nextLine();
 
-		// 취소 기능 구현을 위한 'cancel' 체크 (기획서 3.1.2.4 및 3.1.2.5 참고)
 		if ("cancel".equalsIgnoreCase(input.trim())) {
 			if (confirmCancel())
 				return;
-			// 'cancel' 취소 후 재입력 로직은 복잡해지므로, 여기서는 취소 후 메인 메뉴 복귀만 처리했습니다.
 		}
 
 		try {
 			int id = Integer.parseInt(input.trim());
-			boolean deleted = ledgerService.deleteItem(id);// 삭제 후 파일 동기화는 Service에서 수행 가정
+			boolean deleted = ledgerService.deleteItem(id);
 			if (deleted) {
 				System.out.printf("ID %d 항목이 성공적으로 삭제되었습니다.%n", id);
 			} else {
-				// 기획서 3.1.2.2에 따라 ID 존재하지 않으면 오류 메시지 출력 후 삭제 취소
 				System.out.println("오류: 해당 ID의 항목이 존재하지 않습니다.");
 			}
 		} catch (NumberFormatException e) {
@@ -353,7 +276,7 @@ public class CliInterface {
 		System.out.println();
 	}
 
-	// 💡 내역 수정 기능을 처리합니다.
+	// 내역 수정
 	private void editItem() {
 		System.out.println("=== 내역 수정 ===");
 
@@ -363,7 +286,6 @@ public class CliInterface {
 			return;
 		}
 
-		// 현재 항목 표시
 		System.out.println("현재 항목:");
 		ledgerService.displayItems(ledgerService.getAllItems());
 		System.out.println();
@@ -371,7 +293,6 @@ public class CliInterface {
 		System.out.print("수정할 항목의 ID 입력: ");
 		String idInput = scanner.nextLine();
 
-		// 취소 기능 구현을 위한 'cancel' 체크
 		if ("cancel".equalsIgnoreCase(idInput.trim())) {
 			if (confirmCancel())
 				return;
@@ -380,13 +301,11 @@ public class CliInterface {
 		try {
 			int id = Integer.parseInt(idInput.trim());
 
-			// 💡 수정: Optional을 사용하여 항목 존재 여부 안전하게 확인
 			Optional<LedgerItem> itemOpt = ledgerService.getAllItems().stream()
 					.filter(item -> item.getId() == id)
 					.findFirst();
 
 			if (itemOpt.isEmpty()) {
-				// 기획서 1.9.7에 따라 ID가 존재하지 않으면 오류 메시지 출력 후 메인화면으로 이동
 				System.out.println("오류: 해당 ID의 항목이 존재하지 않습니다.");
 				System.out.println();
 				return;
@@ -394,96 +313,78 @@ public class CliInterface {
 
 			LedgerItem itemToEdit = itemOpt.get();
 
-			// 수정 로직 시작 (기획서 3.1.2.4의 상세 동작을 간략화)
 			System.out.println("--- 항목 수정 모드 ---");
-			System.out.printf("ID: %d%n", itemToEdit.getId());
-			// 💡 수정: 금액 부호로 '수입' 또는 '지출'을 결정합니다.
 			String currentType = itemToEdit.getAmount() >= 0 ? "수입" : "지출";
+			System.out.printf("ID: %d%n", itemToEdit.getId());
 			System.out.printf("1. 유형: %s%n", currentType);
 			System.out.printf("2. 날짜: %s%n", itemToEdit.getDate());
-			System.out.printf("3. 금액: %d%n", Math.abs(itemToEdit.getAmount())); // 절대값으로 표시
+			System.out.printf("3. 금액: %d%n", Math.abs(itemToEdit.getAmount()));
 			System.out.printf("4. 카테고리: %s%n", itemToEdit.getCategory());
 			System.out.printf("5. 내용: %s%n", itemToEdit.getDescription());
 			System.out.println("---------------------");
 
-			// 💡 수정할 필드 선택 메뉴 출력 및 번호 범위 수정
 			System.out.println("수정할 항목을 선택하세요:");
 			System.out.println("1. 유형 (수입/지출) 2. 날짜 3. 금액 4. 카테고리 5. 내용");
 			System.out.print("선택 > (취소: 'cancel' 입력): ");
 
 			String fieldChoiceInput = scanner.nextLine().trim();
 
-			// 취소 로직은 기획서 3.1.2.4 및 3.1.2.5에 따라 'cancel' 키워드로 처리
 			if ("cancel".equalsIgnoreCase(fieldChoiceInput)) {
 				if (confirmCancel())
 					return;
 			}
 
-			// 필드 선택 유효성 검증 (1~5 범위로 변경)
-			ValidationUtil.ValidationResult result = ValidationUtil.validateMenuOption(fieldChoiceInput, 1, 5); // 💡 범위
-																												// 1, 5로
-																												// 변경
+			ValidationUtil.ValidationResult result = ValidationUtil.validateMenuOption(fieldChoiceInput, 1, 5);
 			if (!result.isValid()) {
-				// 기획서 예외 처리 9번: "유효하지 않은 메뉴 번호입니다."
 				System.out.println("오류: " + result.getErrorMessage());
 				System.out.println();
 				return;
 			}
 
-			// 선택된 필드에 따라 수정 로직 수행
 			int fieldChoice = result.getValue(Integer.class);
-
-			// 💡 수정 로직 구현: 선택된 필드에 따라 사용자 입력을 받고 유효성 검사 수행
 			Object newValue = null;
 
 			switch (fieldChoice) {
-				case 1: // 유형 (Type: 수입/지출)
+				case 1: {
 					String newType = getValidType("유형 입력 [1: 수입 (+), 2: 지출 (-)]: ");
 					if (newType == null)
 						return;
-
-					// 💡 유형 수정: 금액의 절대값을 유지한 채 새 유형에 따라 부호를 변경
-					// newValue는 (양수 또는 음수) 금액이 됩니다.
-					newValue = newType.equals("지출") ? -Math.abs(itemToEdit.getAmount())
+					newValue = newType.equals("지출")
+							? -Math.abs(itemToEdit.getAmount())
 							: Math.abs(itemToEdit.getAmount());
 					break;
-				case 2: // 날짜 (Date)
+				}
+				case 2: {
 					newValue = getValidDate("날짜 입력 (YYYY-MM-DD): ");
 					break;
-				case 3: // 금액 (Amount)
+				}
+				case 3: {
 					Integer newAmount = getValidAmount("금액 입력: ");
 					if (newAmount == null)
 						return;
-
-					// 💡 금액 수정: 기존 유형(currentType)에 따라 새 금액에 부호를 적용
-					// newValue는 (양수 또는 음수) 금액이 됩니다.
 					newValue = currentType.equals("지출") ? -Math.abs(newAmount) : Math.abs(newAmount);
 					break;
-				case 4: // 카테고리 (Category)
+				}
+				case 4: {
 					newValue = selectCategory(scanner);
 					break;
-				case 5: // 내용 (Description/Note)
+				}
+				case 5: {
 					newValue = getValidDescription("내용 입력 (선택사항, 최대 50자): ");
 					break;
+				}
 			}
 
 			if (newValue == null && fieldChoice != 1) {
-				// 유형 필드(1) 외의 필드에서 취소/유효성 검사 실패 시
 				System.out.println("수정 작업이 취소되었습니다.");
 				return;
 			}
 
-			// ----------------------------------------------------------------------------------
-			// 💡 문제 해결 핵심 수정: editItemField() 호출 대신 LedgerItem 객체에 직접 반영 및 saveData() 호출
-			// ----------------------------------------------------------------------------------
-			updateItemToEdit(itemToEdit, fieldChoice, newValue); // LedgerItem 객체에 직접 변경 사항 반영
+			updateItemToEdit(itemToEdit, fieldChoice, newValue);
 
-			// 💡 수정: LedgerService의 기존 저장 메서드 호출 (파일 동기화)
 			boolean success = ledgerService.saveData();
-			// ----------------------------------------------------------------------------------
 
 			if (success) {
-				// 💡 기획서 3.2.1에 따라, 수정 완료 후 파일에 즉시 반영되어야 합니다. (Service에서 처리 가정)
 				System.out.println("항목이 성공적으로 수정되었습니다.");
 			} else {
 				System.out.println("수정 작업이 취소되었거나 파일 저장에 실패했습니다.");
@@ -495,38 +396,25 @@ public class CliInterface {
 		System.out.println();
 	}
 
-	// 💡 추가된 헬퍼 메서드: LedgerItem 객체에 변경 사항을 직접 반영합니다.
-	// 💡 추가된 헬퍼 메서드: LedgerItem 객체에 변경 사항을 직접 반영합니다.
+	// LedgerItem 객체에 변경 사항을 직접 반영
 	private void updateItemToEdit(LedgerItem itemToEdit, int fieldChoice, Object newValue) {
 		if (newValue == null)
 			return;
 
-		// LedgerItem의 setter가 존재한다고 가정하고 값을 업데이트합니다.
-		// 이는 UI 계층에서 데이터 모델을 직접 조작하는 것이므로 계층 분리 관점에서는 이상적이지 않으나,
-		// Service 메서드 구현 없이 컴파일 오류를 회피하기 위한 해결책입니다.
 		try {
 			if (fieldChoice == 1 || fieldChoice == 3) {
-				// 금액(newValue)은 이미 CliInterface에서 부호가 적용된 Integer 금액입니다.
 				itemToEdit.setAmount((Integer) newValue);
-
-				// 💡 핵심 로직: 금액 부호에 따라 type 필드를 명시적으로 업데이트
-				String newType;
-				if ((Integer) newValue >= 0) {
-					newType = "수입 (+)";
-				} else {
-					newType = " 지출 (-)";
-				}
-				itemToEdit.setType(newType); // LedgerItem의 setType() 메서드를 호출하여 유형 동기화
-
+				String newType = ((Integer) newValue >= 0) ? "수입 (+)" : " 지출 (-)";
+				itemToEdit.setType(newType);
 			} else {
 				switch (fieldChoice) {
-					case 2: // 날짜 (Date)
+					case 2:
 						itemToEdit.setDate((LocalDate) newValue);
 						break;
-					case 4: // 카테고리 (Category)
+					case 4:
 						itemToEdit.setCategory((String) newValue);
 						break;
-					case 5: // 내용 (Description/Note)
+					case 5:
 						itemToEdit.setDescription((String) newValue);
 						break;
 				}
@@ -536,7 +424,7 @@ public class CliInterface {
 		}
 	}
 
-	// 💡 새로운 헬퍼 메서드: 유형 입력 (수정 메뉴에서 사용)
+	// 유형 입력
 	private String getValidType(String prompt) {
 		while (true) {
 			System.out.print(prompt + "(취소: 'cancel' 입력): ");
@@ -548,7 +436,6 @@ public class CliInterface {
 				continue;
 			}
 
-			// 1 또는 2의 숫자 입력만 허용
 			ValidationUtil.ValidationResult result = ValidationUtil.validateMenuOption(input, 1, 2);
 
 			if (result.isValid()) {
@@ -556,12 +443,11 @@ public class CliInterface {
 				return choice == 1 ? "수입" : "지출";
 			} else {
 				System.out.println("오류: " + result.getErrorMessage());
-				continue;
 			}
 		}
 	}
 
-	// 모든 항목을 조회합니다.
+	// 전체 보기
 	private void viewAllItems() {
 		System.out.println("=== 전체 내역 ===");
 		List<LedgerItem> items = ledgerService.getAllItems();
@@ -569,7 +455,7 @@ public class CliInterface {
 		System.out.println();
 	}
 
-	// 날짜 범위별로 항목을 조회합니다.
+	// 날짜 범위별 보기
 	private void viewItemsByDateRange() {
 		System.out.println("=== 날짜 범위별 보기 ===");
 
@@ -593,12 +479,9 @@ public class CliInterface {
 		System.out.println();
 	}
 
-	// 카테고리별로 항목을 조회합니다.
+	// 카테고리별 보기
 	private void viewItemsByCategory() {
 		System.out.println("=== 카테고리별 보기 ===");
-
-		// 💡 카테고리 목록 표시 로직이 실제 카테고리 목록에 의존하도록 수정해야 합니다.
-		// 임시로 LedgerItem.VALID_CATEGORIES를 사용한다고 가정합니다.
 		String category = selectCategory(scanner);
 		if (category == null)
 			return;
@@ -609,7 +492,7 @@ public class CliInterface {
 		System.out.println();
 	}
 
-	// 데이터를 파일에 저장합니다.
+	// 파일 저장 (현재는 안 쓰일 수도 있음)
 	private void saveToFile() {
 		System.out.println("=== 파일에 저장 ===");
 		boolean success = ledgerService.saveData();
@@ -619,7 +502,7 @@ public class CliInterface {
 		System.out.println();
 	}
 
-	// 파일에서 데이터를 불러옵니다.
+	// 파일 불러오기
 	private void loadFromFile() {
 		System.out.println("=== 파일 불러오기 ===");
 		System.out.print("현재 데이터가 덮어씌워집니다. 계속하시겠습니까? (Y/N): ");
@@ -636,7 +519,7 @@ public class CliInterface {
 		System.out.println();
 	}
 
-	// 파일 형식을 변경합니다.
+	// 파일 형식 변경
 	private void changeFileFormat() {
 		System.out.println("=== 파일 형식 변경 ===");
 		System.out.printf("현재 형식: %s%n", ledgerService.getCurrentFormat().getDescription());
@@ -681,8 +564,7 @@ public class CliInterface {
 		System.out.println();
 	}
 
-	// 💡 입력 취소 확인 프롬프트
-	// @return 취소 확정 시 true, 아니면 false
+	// 취소 확인
 	private boolean confirmCancel() {
 		System.out.print("# 확인: 현재 작업을 취소하고 메인 화면으로 이동하시겠습니까? (Y/N) > ");
 		String confirm = scanner.nextLine().trim().toLowerCase();
@@ -696,7 +578,7 @@ public class CliInterface {
 		}
 	}
 
-	// 입력 유효성 검사를 위한 헬퍼 메서드
+	// ====== 여기부터 입력 유효성 헬퍼들 (한 번만 존재) ======
 
 	private LocalDate getValidDate(String prompt) {
 		while (true) {
@@ -705,7 +587,7 @@ public class CliInterface {
 
 			if ("cancel".equalsIgnoreCase(input.trim())) {
 				if (confirmCancel())
-					return null; // 취소 확정 시 null 반환
+					return null;
 				continue;
 			}
 
@@ -725,7 +607,7 @@ public class CliInterface {
 
 			if ("cancel".equalsIgnoreCase(input.trim())) {
 				if (confirmCancel())
-					return null; // 취소 확정 시 null 반환
+					return null;
 				continue;
 			}
 
@@ -738,6 +620,7 @@ public class CliInterface {
 		}
 	}
 
+	// 지금은 안 쓰일 수 있지만 남겨둠
 	private String getValidCategory(String prompt) {
 		while (true) {
 			System.out.print(prompt + "(취소: 'cancel' 입력): ");
@@ -745,7 +628,7 @@ public class CliInterface {
 
 			if ("cancel".equalsIgnoreCase(input.trim())) {
 				if (confirmCancel())
-					return null; // 취소 확정 시 null 반환
+					return null;
 				continue;
 			}
 
@@ -765,7 +648,7 @@ public class CliInterface {
 
 			if ("cancel".equalsIgnoreCase(input.trim())) {
 				if (confirmCancel())
-					return null; // 취소 확정 시 null 반환
+					return null;
 				continue;
 			}
 
@@ -778,17 +661,28 @@ public class CliInterface {
 		}
 	}
 
+	/**
+	 * 카테고리 선택(기획서 1.6.3에 맞춘 버전)
+	 * - 기본 6개는 고정
+	 * - 사용자 정의는 최대 4개 (총 10개)
+	 * - Y: 추가 / N: 삭제 / 번호: 선택 / cancel: 취소
+	 */
 	private String selectCategory(Scanner scanner) {
-		System.out.println("=== 카테고리 선택 ===");
-		for (int i = 0; i < MAIN_CATEGORIES.length; i++) {
-			System.out.printf("%d. %s%n", i + 1, MAIN_CATEGORIES[i]);
-		}
-
-		int mainIndex;
 		while (true) {
-			System.out.print("번호 입력 (취소: 'cancel'): ");
+			System.out.println("=== 카테고리 입력 ===");
+			// 현재 카테고리 목록 출력
+			int index = 1;
+			for (String base : BASE_CATEGORIES) {
+				System.out.printf("%d. %s%n", index++, base);
+			}
+			for (String custom : customCategories) {
+				System.out.printf("%d. %s%n", index++, custom);
+			}
+
+			System.out.print("카테고리 번호를 입력하거나, 카테고리를 추가(Y)/삭제(N) 하시려면 입력해주세요. (취소: 'cancel'): ");
 			String input = scanner.nextLine().trim();
 
+			// 취소
 			if ("cancel".equalsIgnoreCase(input)) {
 				if (confirmCancel()) {
 					return null;
@@ -797,43 +691,84 @@ public class CliInterface {
 				}
 			}
 
-			ValidationUtil.ValidationResult res = ValidationUtil.validateMenuOption(input, 1, MAIN_CATEGORIES.length);
-			if (res.isValid()) {
-				mainIndex = res.getValue(Integer.class);
-				break;
-			} else {
-				System.out.println("오류: " + res.getErrorMessage());
-			}
-		}
-
-		System.out.println("=== 하위 카테고리 선택 ===");
-		String[] subs = SUB_CATEGORIES[mainIndex - 1];
-		for (int i = 0; i < subs.length; i++) {
-			System.out.printf("%d. %s%n", i + 1, subs[i]);
-		}
-
-		int subIndex;
-		while (true) {
-			System.out.print("번호 입력 (취소: 'cancel'): ");
-			String input = scanner.nextLine().trim();
-
-			if ("cancel".equalsIgnoreCase(input)) {
-				if (confirmCancel()) {
-					return null;
-				} else {
+			// 추가 로직
+			if (input.equalsIgnoreCase("Y")) {
+				if (customCategories.size() >= 4) {
+					// 6 + 4 = 10개
+					System.out.println("카테고리는 최대 4개까지만 추가가 가능합니다.");
 					continue;
 				}
+				System.out.print("카테고리 명을 입력해주세요: ");
+				String newCat = scanner.nextLine().trim();
+
+				if ("cancel".equalsIgnoreCase(newCat)) {
+					if (confirmCancel()) {
+						return null;
+					} else {
+						continue;
+					}
+				}
+
+				// 중복 체크 (기본/사용자 모두)
+				if (BASE_CATEGORIES.contains(newCat) || customCategories.contains(newCat)) {
+					System.out.println("이미 존재하는 카테고리입니다.");
+					continue;
+				}
+
+				customCategories.add(newCat);
+				System.out.println("정상적으로 카테고리가 추가되었습니다.");
+				// 추가하고 다시 전체 목록으로 돌아가서 선택하게 함
+				continue;
 			}
 
-			ValidationUtil.ValidationResult res = ValidationUtil.validateMenuOption(input, 1, subs.length);
-			if (res.isValid()) {
-				subIndex = res.getValue(Integer.class);
-				break;
-			} else {
-				System.out.println("오류: " + res.getErrorMessage());
+			// 삭제 로직
+			if (input.equalsIgnoreCase("N")) {
+				System.out.print("삭제할 카테고리 명을 입력해주세요: ");
+				String delCat = scanner.nextLine().trim();
+
+				if ("cancel".equalsIgnoreCase(delCat)) {
+					if (confirmCancel()) {
+						return null;
+					} else {
+						continue;
+					}
+				}
+
+				// 기본 카테고리는 삭제 불가
+				if (BASE_CATEGORIES.contains(delCat)) {
+					System.out.println("기본 카테고리는 삭제할 수 없습니다.");
+					continue;
+				}
+
+				if (customCategories.contains(delCat)) {
+					customCategories.remove(delCat); // 지우면 뒤에 것들이 앞으로 당겨져서 7,8,9.. 재정렬 효과
+					System.out.println("해당 카테고리 항목을 삭제하였습니다.");
+				} else {
+					System.out.println("해당 카테고리 항목이 없습니다.");
+				}
+				// 삭제 후에도 다시 목록으로
+				continue;
+			}
+
+			// 숫자 선택 로직
+			try {
+				int selected = Integer.parseInt(input);
+				int totalCategories = BASE_CATEGORIES.size() + customCategories.size();
+				if (selected < 1 || selected > totalCategories) {
+					System.out.println("오류: 유효한 카테고리 번호를 입력해주세요.");
+					continue;
+				}
+
+				if (selected <= BASE_CATEGORIES.size()) {
+					return BASE_CATEGORIES.get(selected - 1);
+				} else {
+					int customIndex = selected - BASE_CATEGORIES.size() - 1;
+					return customCategories.get(customIndex + 0);
+				}
+
+			} catch (NumberFormatException e) {
+				System.out.println("오류: 번호, Y, N 중 하나를 입력해주세요.");
 			}
 		}
-
-		return MAIN_CATEGORIES[mainIndex - 1] + ": " + subs[subIndex - 1];
 	}
 }
