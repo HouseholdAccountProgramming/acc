@@ -49,8 +49,8 @@
 Bash# (unmappable character 오류 방지를 위해 -encoding UTF-8 옵션을, 
 # 올바른 위치에 클래스 파일을 생성하기 위해 -d . 옵션을 사용합니다.)
 
-javac 
--encoding UTF-8 -d . src/main/java/com/accountbook/*.java src/main/java/com/accountbook/model/*.java src/main/java/com/accountbook/service/*.java src/main/java/com/accountbook/ui/*.java src/main/java/com/accountbook/util/*.java
+javac -encoding UTF-8 -d . src/main/java/com/accountbook/*.java src/main/java/com/accountbook/model/*.java src/main/java/com/accountbook/service/*.java src/main/java/com/accountbook/ui/*.java src/main/java/com/accountbook/util/*.java
+
 2. 애플리케이션 실행 
 (Run)CLI 환경에서 실행합니다.
 기본 사용법 (기본 ledger.csv 파일 사용) 

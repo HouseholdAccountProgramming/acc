@@ -4,11 +4,11 @@ import com.accountbook.model.LedgerItem;
 import com.accountbook.service.LedgerService;
 import com.accountbook.util.FileFormat;
 import com.accountbook.util.ValidationUtil;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Scanner;
-import java.nio.charset.StandardCharsets;
-import java.util.Optional; 
+import java.util.Optional;
+import java.util.Scanner; 
 
 
 // 개인 가계부 애플리케이션을 위한 명령줄 인터페이스입니다.
@@ -542,7 +542,7 @@ public class CliInterface {
 	// 파일에서 데이터를 불러옵니다.
 	private void loadFromFile() {
 		System.out.println("=== 파일 불러오기 ===");
-		System.out.print("현재 데이터가 덮어씌워집니다. 계속하시겠습니까? (Y/N): ");
+		System.out.print("현재 데이터가 덮어씌워집니다. 계속하시겠습니까? (y/n): ");
 		String confirm = scanner.nextLine().trim().toLowerCase();
 		
 		if (confirm.equals("y") || confirm.equals("yes")) {
@@ -586,7 +586,7 @@ public class CliInterface {
 		if (selectedFormat == ledgerService.getCurrentFormat()) {
 			System.out.println("이미 선택된 형식입니다.");
 		} else {
-			System.out.printf("%s(으)로 형식을 변경하시겠습니까? (y/N): ", selectedFormat.getDescription());
+			System.out.printf("%s(으)로 형식을 변경하시겠습니까? (y/n): ", selectedFormat.getDescription());
 			String confirm = scanner.nextLine().trim().toLowerCase();
 			
 			if (confirm.equals("y") || confirm.equals("yes")) {
