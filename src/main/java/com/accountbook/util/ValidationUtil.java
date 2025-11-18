@@ -74,21 +74,19 @@ public class ValidationUtil {
     }
     
     /**
-     * 요구사항에 따라 카테고리 입력을 검증합니다:
-     * - 미리 정의된 값 중 하나여야 함
+     * 카테고리 입력 검증: 현재 CategoryManager가 관리하는 목록 내에 존재해야 함.
      */
     public static ValidationResult validateCategory(String category) {
         if (category == null || category.trim().isEmpty()) {
             return new ValidationResult(false, "카테고리는 비워둘 수 없습니다.");
         }
-        
+
         String trimmed = category.trim();
-        
-        if (!LedgerItem.isValidCategory(trimmed)) {
-            return new ValidationResult(false, 
-                "카테고리는 상위 또는 '상위: 하위' 형식 중 유효한 값이어야 합니다.");
+
+        if (!CategoryManager.isValidCategory(trimmed)) {
+            return new ValidationResult(false, "유효하지 않은 카테고리입니다.");
         }
-        
+
         return new ValidationResult(true, null, trimmed);
     }
     

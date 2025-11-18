@@ -1,6 +1,7 @@
 package com.accountbook.util;
 
 import com.accountbook.model.LedgerItem;
+import com.accountbook.util.CategoryManager;
 import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -226,7 +227,7 @@ public class JsonFileHandler {
         if (!date.isAfter(LocalDate.of(2025, 10, 1))) {
             throw new IllegalArgumentException("날짜는 2025-10-01 이후여야 합니다.");
         }
-        if (!LedgerItem.isValidCategory(category)) {
+        if (!CategoryManager.isValidCategory(category)) {
             throw new IllegalArgumentException("유효하지 않은 카테고리: " + category);
         }
         if (amount <= 0 || amount > 100_000_000) {

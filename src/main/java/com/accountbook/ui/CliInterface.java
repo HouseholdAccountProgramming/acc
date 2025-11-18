@@ -3,6 +3,7 @@ package com.accountbook.ui;
 import com.accountbook.model.LedgerItem;
 import com.accountbook.service.LedgerService;
 import com.accountbook.util.FileFormat;
+import com.accountbook.util.CategoryManager;
 import com.accountbook.util.ValidationUtil;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
@@ -228,7 +229,7 @@ public class CliInterface {
 		}
 
 		// 카테고리 가져오기
-		String category = getValidCategory("카테고리 입력: ");
+		String category = promptCategoryWithManagement(null);
 		if (category == null) return;
 
 		// 설명 가져오기
@@ -385,7 +386,8 @@ public class CliInterface {
 					newValue = currentType.equals("지출") ? -Math.abs(newAmount) : Math.abs(newAmount);
 					break;
 				case 4: // 카테고리 (Category)
-					newValue = getValidCategory("카테고리 입력: ");
+					System.out.println("현재 카테고리: " + itemToEdit.getCategory());
+					newValue = promptCategorySelection();
 					break;
 				case 5: // 내용 (Description/Note)
 					newValue = getValidDescription("내용 입력 (선택사항, 최대 50자): ");
@@ -517,10 +519,7 @@ public class CliInterface {
 	// 카테고리별로 항목을 조회합니다.
 	private void viewItemsByCategory() {
 		System.out.println("=== 카테고리별 보기 ===");
-		
-		// 💡 카테고리 목록 표시 로직이 실제 카테고리 목록에 의존하도록 수정해야 합니다.
-		// 임시로 LedgerItem.VALID_CATEGORIES를 사용한다고 가정합니다.
-		String category = getValidCategory("카테고리 입력 (" + String.join(", ", LedgerItem.VALID_CATEGORIES) + "): ");
+		String category = promptCategorySelection();
 		if (category == null) return;
 		
 		List<LedgerItem> items = ledgerService.getItemsByCategory(category);
@@ -691,6 +690,99 @@ public class CliInterface {
 			} else {
 				System.out.println("오류: " + result.getErrorMessage());
 			}
+		}
+	}
+
+	// 카테고리 전체 목록을 번호와 함께 출력합니다.
+	private void printCategoryList() {
+		List<String> categories = CategoryManager.getAllCategories();
+		StringBuilder sb = new StringBuilder("[");
+		for (int i = 0; i < categories.size(); i++) {
+			if (i > 0) sb.append(' ');
+			sb.append(i + 1).append(". ").append(categories.get(i));
+		}
+		sb.append("]");
+		System.out.println("현재 카테고리: " + sb.toString());
+	}
+
+	// 2.1 내역 추가 - 카테고리 입력: 번호 선택 또는 추가(Y)/삭제(N) 관리 포함
+	private String promptCategoryWithManagement(String currentLabel) {
+		while (true) {
+			if (currentLabel != null && !currentLabel.isEmpty()) {
+				System.out.println("현재 값: " + currentLabel);
+			}
+			printCategoryList();
+			System.out.print("카테고리 입력: [번호 선택 / 추가 Y / 삭제 N] (취소: 'cancel' 입력): ");
+			String input = scanner.nextLine().trim();
+
+			if ("cancel".equalsIgnoreCase(input)) {
+				if (confirmCancel()) return null;
+				continue;
+			}
+
+			// 번호 선택
+			ValidationUtil.ValidationResult num = ValidationUtil.validateMenuOption(input, 1, CategoryManager.getAllCategories().size());
+			if (num.isValid()) {
+				int idx = num.getValue(Integer.class) - 1;
+				return CategoryManager.getAllCategories().get(idx);
+			}
+
+			// 추가
+			if (input.equalsIgnoreCase("Y")) {
+				System.out.print("카테고리 명을 입력해주세요: ");
+				String name = scanner.nextLine();
+				if ("cancel".equalsIgnoreCase(name.trim())) {
+					if (confirmCancel()) return null;
+					continue;
+				}
+				CategoryManager.AddResult res = CategoryManager.addCustomCategory(name);
+				if (!res.success) {
+					System.out.println(res.message);
+				} else {
+					System.out.println("정상적으로 카테고리가 추가되었습니다.");
+				}
+				// 업데이트된 목록을 보여주고 다시 프롬프트로 복귀
+				continue;
+			}
+
+			// 삭제
+			if (input.equalsIgnoreCase("N")) {
+				System.out.print("카테고리 명을 입력해주세요: ");
+				String name = scanner.nextLine();
+				if ("cancel".equalsIgnoreCase(name.trim())) {
+					if (confirmCancel()) return null;
+					continue;
+				}
+				CategoryManager.DeleteResult res = CategoryManager.deleteCustomCategory(name);
+				if (!res.success) {
+					System.out.println(res.message);
+				} else {
+					System.out.println("해당 카테고리 항목을 삭제하였습니다.");
+				}
+				// 자동 리넘버링은 리스트에서 자연스럽게 반영됨. 다시 프롬프트로 복귀
+				continue;
+			}
+
+			System.out.println("오류: 유효한 번호, 'Y', 'N' 중 하나를 입력해주세요.");
+		}
+	}
+
+	// 번호만으로 카테고리 선택 (수정, 카테고리별 보기에서 사용)
+	private String promptCategorySelection() {
+		while (true) {
+			printCategoryList();
+			System.out.print("카테고리 번호를 입력해주세요 (취소: 'cancel' 입력): ");
+			String input = scanner.nextLine().trim();
+			if ("cancel".equalsIgnoreCase(input)) {
+				if (confirmCancel()) return null;
+				continue;
+			}
+			ValidationUtil.ValidationResult num = ValidationUtil.validateMenuOption(input, 1, CategoryManager.getAllCategories().size());
+			if (num.isValid()) {
+				int idx = num.getValue(Integer.class) - 1;
+				return CategoryManager.getAllCategories().get(idx);
+			}
+			System.out.println("오류: 유효한 번호를 입력해주세요.");
 		}
 	}
 }

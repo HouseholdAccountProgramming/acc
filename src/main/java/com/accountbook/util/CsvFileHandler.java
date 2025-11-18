@@ -1,6 +1,7 @@
 package com.accountbook.util;
 
 import com.accountbook.model.LedgerItem;
+import com.accountbook.util.CategoryManager;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
@@ -127,7 +128,7 @@ public class CsvFileHandler {
             if (absoluteAmount <= 0 || absoluteAmount > 100_000_000) {
                 throw new IllegalArgumentException("유효하지 않은 금액: " + amount);
             }
-            if (!LedgerItem.isValidCategory(category)) {
+            if (!CategoryManager.isValidCategory(category)) {
                 throw new IllegalArgumentException("유효하지 않은 카테고리: " + category);
             }
             if (description != null) {
