@@ -14,5 +14,10 @@
             "args": ["-NoExit", "/c", "chcp 65001 >$null ; cls"],
             "icon": "terminal-powershell"
         }
-    }
+    },
+    "java.project.sourcePaths": [
+        "acc/target/classes/com/accountbook",
+        "acc/src/main/java",
+        "acc"
+    ]
 }
