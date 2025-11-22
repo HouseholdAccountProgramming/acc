@@ -5,6 +5,7 @@ import com.accountbook.util.CategoryManager;
 import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.ResolverStyle;
 import java.util.ArrayList;
 import java.util.List;
 import java.nio.charset.StandardCharsets;
@@ -15,7 +16,7 @@ import java.nio.charset.StandardCharsets;
 public class JsonFileHandler {
     
     private static final String DEFAULT_FILE_NAME = "ledger.json";
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd").withResolverStyle(ResolverStyle.STRICT);
     
     private final String fileName;
     

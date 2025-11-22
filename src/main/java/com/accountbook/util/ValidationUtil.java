@@ -1,7 +1,9 @@
 package com.accountbook.util;
 
+import com.accountbook.model.LedgerItem;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.ResolverStyle;
 import java.time.format.DateTimeParseException;
 
 /**
@@ -16,7 +18,7 @@ public class ValidationUtil {
     // 최대 설명 길이 (50자)
     private static final int MAX_DESCRIPTION_LENGTH = 50;
     // 날짜 형식 지정
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd").withResolverStyle(ResolverStyle.STRICT);
     
     /**
      * 요구사항에 따라 날짜 입력을 검증합니다:
@@ -42,8 +44,8 @@ public class ValidationUtil {
             
             return new ValidationResult(true, null, date);
         } catch (DateTimeParseException e) {
-            // 날짜 형식 오류이거나, 날짜가 달력에 존재하지 않는 오류 (예: 4월 31일)인 경우
-            return new ValidationResult(false, "유효하지 않은 날짜 형식입니다. YYYY-MM-DD 형식을 사용해주세요. (달력에 없는 날짜 포함)");
+            // [수정된 부분]: 오류 메시지를 더 명확하게 표시
+            return new ValidationResult(false, "날짜 입력 오류: YYYY-MM-DD 형식이 아니거나 달력에 존재하지 않는 날짜입니다. (예: 11월 31일)");
         }
     }
     
