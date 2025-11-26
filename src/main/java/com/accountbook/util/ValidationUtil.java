@@ -18,7 +18,7 @@ public class ValidationUtil {
     // 최대 설명 길이 (50자)
     private static final int MAX_DESCRIPTION_LENGTH = 50;
     // 날짜 형식 지정
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd").withResolverStyle(ResolverStyle.STRICT);
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("uuuu-MM-dd").withResolverStyle(ResolverStyle.STRICT);
     
     /**
      * 요구사항에 따라 날짜 입력을 검증합니다:

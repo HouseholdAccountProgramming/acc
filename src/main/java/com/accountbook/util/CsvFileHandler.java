@@ -14,7 +14,7 @@ public class CsvFileHandler {
     
     private static final String DEFAULT_FILE_NAME = "ledger.csv";
     private static final String CSV_HEADER = "id,type,date,category,amount,description";
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd").withResolverStyle(ResolverStyle.STRICT);
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("uuuu-MM-dd").withResolverStyle(ResolverStyle.STRICT);
     
     private final String fileName;
     

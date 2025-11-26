@@ -16,7 +16,7 @@ import java.nio.charset.StandardCharsets;
 public class JsonFileHandler {
     
     private static final String DEFAULT_FILE_NAME = "ledger.json";
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd").withResolverStyle(ResolverStyle.STRICT);
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("uuuu-MM-dd").withResolverStyle(ResolverStyle.STRICT);
     
     private final String fileName;
     
