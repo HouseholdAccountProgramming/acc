@@ -1,73 +1,54 @@
-📖 개인 가계부 - CLI 애플리케이션 상세 기획 수정본개인 재정을 관리하기 위한 자바 기반의 명령줄 인터페이스(CLI) 애플리케이션입니다.
-1. 이 경량 도구는 사용자가 금융 거래 내역을 기록(추가), 조회, 수정, 삭제할 수 있게 해주며 데이터는 CSV 또는 JSON 파일 형식으로 영구적으로 저장됩니다.
+📖 개인 가계부 - CLI 애플리케이션
+개인 재정을 관리하기 위한 자바 기반의 명령줄 인터페이스(CLI) 애플리케이션입니다.
+
+필수 요구사항
+- Java JDK 17 이상 (권장: JDK 21 LTS)
+- Windows 환경(PowerShell) 또는 기타 JVM 지원 OS
+- 외부 종속성 없음
+
+빠른 실행
+- 컴파일: `javac -encoding UTF-8 -d . src/main/java/com/accountbook/*.java src/main/java/com/accountbook/model/*.java src/main/java/com/accountbook/service/*.java src/main/java/com/accountbook/ui/*.java src/main/java/com/accountbook/util/*.java`
+- 실행(기본 파일 사용): `java com.accountbook.AccountBookApp`
+- 실행(사용자 지정 파일): `java com.accountbook.AccountBookApp my_ledger.csv`
+
 📝 주요 기능
-거래 내역 관리
-(추가/삭제/수정)
-1. 추가: 유형 (수입/지출), 날짜 (YYYY-MM-DD), 금액 (1원 ~ 1억 원), 카테고리, 내용 (최대 50자)를 포함한 거래 내역을 기록합니다
-2. 삭제: 항목별 고유 ID를 기준으로 거래 내역을 찾아 제거합니다.
-3. 수정: 항목의 고유 ID를 기준으로 기존 내역 (날짜, 금액, 카테고리, 내용, 메모)을 수정하고 메모리와 파일에 즉시 반영합니다.
-[데이터 조회]
-1. 전체 보기: 메모리에 저장된 모든 항목을 출력합니다.
-2. 날짜 범위별 보기: 시작일과 종료일을 입력받아 해당 기간 내 항목을 필터링합니다.
-3. 카테고리별 보기: 특정 카테고리(기본 6개 + 사용자 지정 최대 4개)에 속한 항목을 번호 입력 방식으로 조회합니다.
-[데이터 계산 및 통계]
-1. 전체 항목 조회: 저장된 모든 수입 및 지출 항목을 출력합니다.
-2. 카테고리별 조회: 선택한 카테고리에 속하는 모든 항목 금액을 출력합니다.
-3. 날짜 범위별 조회: 특정 기간 동안의 항목 데이터를 출력합니다.
-[파일 처리 및 영속성]
-1. 다중 파일 형식 지원: CSV와 JSON 형식으로 저장/불러오기를 지원하며, 형식 간 상호 변환이 가능합니다.
-2. 데이터 영속성: 항목 추가/삭제/수정 시 메모리와 파일에 즉시 동기화되며수동으로 저장/불러오기가 가능합니다.
-3. 데이터 무결성 검증: 파일 로드 및 항목 입력 시 형식/범위/유효성을 엄격하게 검증하여 데이터의 정확성과 신뢰성을 확보합니다.
-[환경 및 사용자 편의성]
-1. 메뉴 기반 인터페이스: 번호 입력으로 기능을 선택하는 CLI 환경에서 직관적인 내비게이션을 제공합니다.
-2. 작업 취소 기능: 모든 입력 단계에서 cancel 키워드 입력을 통해 작업을 중단하고 메인 메뉴로 복귀할 수 있습니다.
-3. 반복 실행: 프로그램 종료를 선택할 때까지 메인 메뉴 → 기능 수행 → 메인 메뉴 순으로 반복 실행됩니다.
+- 거래 내역 관리(추가/삭제/수정)
+- 데이터 조회(전체/날짜 범위/카테고리별)
+- CSV/JSON 파일 형식 저장/불러오기 및 변경
+
+기능 상세
+- 추가: 유형(수입/지출), 날짜(YYYY-MM-DD), 금액(1원~1억 원), 카테고리, 내용(최대 50자)
+- 삭제: 항목별 고유 ID 기준으로 제거
+- 수정: ID 기준으로 날짜/금액/카테고리/내용을 편집하고 즉시 저장
+- 전체 보기: 메모리에 저장된 모든 항목 출력
+- 날짜 범위별 보기: 시작/종료일로 필터링
+- 카테고리별 보기: 기본 6개 + 사용자 지정 최대 4개를 번호로 선택해 조회
+
+파일 처리 및 영속성
+- CSV/JSON 형식 지원 및 상호 변환
+- 항목 추가/삭제/수정 시 메모리와 파일에 즉시 동기화
+- 파일 로드 및 입력 시 형식/범위/유효성 엄격 검증
+
+환경 및 사용자 편의성
+- 메뉴 기반 인터페이스(번호 입력)
+- 작업 취소 기능: 모든 입력 단계에서 `cancel` 입력 시 메인 메뉴로 복귀
+- 반복 실행: 메인 메뉴 ↔ 기능 수행 반복 구조
+
 📂 프로젝트 구조
-애플리케이션은 Java 객체지향 설계 원칙을 적용하여 개발되며 재사용성 및 유지보수성을 고려하여 model, service, ui, util 패키지로 분리됩니다.
+애플리케이션은 model, service, ui, util 패키지로 분리되어 유지보수성을 높였습니다.
 └── main/
-    └── java/
-        └── com/
-            └── accountbook/
-                ├── AccountBookApp.java        # 메인 애플리케이션 시작점
-                ├── model/
-                │   └── LedgerItem.java        # 핵심 데이터 모델 (ID, Date, Amount, Type, Category, Note 포함) [cite: 26, 569, 582]
-                ├── service/
-                │   └── LedgerService.java     # 비즈니스 로직 및 CRUD 작업
-                ├── ui/
-                │   └── CliInterface.java      # 명령줄 인터페이스 및 메뉴 출력
-                └── util/
-                    ├── ValidationUtil.java    # 입력 유효성 검사 유틸리티
-                    ├── FileFormat.java        # 파일 형식 열거형
-                    ├── CsvFileHandler.java    # CSV 파일 입출력 작업
-                    └── JsonFileHandler.java   # JSON 파일 입출력 작업
-🚀 시작하기
-요구 사항
-자바 JRE 25 이상 22
-개발 환경: Windows 운영체제 기반, VS Code IDE에서 작성 및 디버깅 가능
-외부 종속성: 없음 (경량 프로그램 구현 목표)
-컴파일 (Build)프로젝트 루트 디렉터리에서 다음 명령어를 사용하여 빌드하고 실행 가능한 .rar 파일을 생성합니다.
-Bash# (unmappable character 오류 방지를 위해 -encoding UTF-8 옵션을, 
-# 올바른 위치에 클래스 파일을 생성하기 위해 -d . 옵션을 사용합니다.)
-
-javac -encoding UTF-8 -d . src/main/java/com/accountbook/*.java src/main/java/com/accountbook/model/*.java src/main/java/com/accountbook/service/*.java src/main/java/com/accountbook/ui/*.java src/main/java/com/accountbook/util/*.java
-
-2. 애플리케이션 실행 
-(Run)CLI 환경에서 실행합니다.
-기본 사용법 (기본 ledger.csv 파일 사용) 
-Bash
-java com.accountbook.AccountBookApp
-사용자 지정 데이터 파일 사용 28Bashjava com.accountbook.AccountBookApp my_ledger.csv
-📖 사용 가이드: 
-[메뉴 및 기능 상세]
-애플리케이션은 메인 메뉴로 시작하여 사용자가 번호를 입력해 원하는 기능을 선택하고, 기능 수행 후 다시 메인 메뉴로 복귀하는 반복 구조를 가집니다.
-[메인 메뉴 구조]
-{메인 메뉴의 구성은 다음과 같습니다.}
-1.내역 관리 
-1.1 내역 추가(새로운 항목 등록) 
-1.2 내역 삭제 (기존 항목 제거) (ID 기준)
-1.3 내역 수정 (기존 항목 내용 수정) (ID 기준) 
-]2.내역 조회
-2.1 전체 보기 (저장된 모든 항목 조회) 2.2 날짜 범위별 보기 (특정 기간 항목 조회 및 합계) 2.3 카테고리별 보기 (선택 카테고리 항목 조회 및 합계)
-3.파일 불러오기 - CSV/JSON 파일 데이터를 메모리로 로드
-4.파일 형식 변경 - CSV 또는 JSON 상호 데이터 형식 변경
-5.프로그램 종료 - 프로그램 종료 및 데이터 저장 확인 
+    └── java/
+        └── com/
+            └── accountbook/
+                ├── AccountBookApp.java        
+                ├── model/
+                │   └── LedgerItem.java        
+                ├── service/
+                │   └── LedgerService.java     
+                ├── ui/
+                │   └── CliInterface.java      
+                └── util/
+                    ├── ValidationUtil.java    
+                    ├── FileFormat.java        
+                    ├── CsvFileHandler.java    
+                    └── JsonFileHandler.java   
