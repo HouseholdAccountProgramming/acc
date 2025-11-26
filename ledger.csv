@@ -1,7 +1,6 @@
 id,type,date,category,amount,description
 1,수입 (+),2025-11-30,Food,100000,lkjasdfiojdsfbdaijsfios
 2,수입 (+),2025-10-13,Transport,12876858,SDAF
-3,수입 (+),2025-12-12,Shopping,1002042,sfkgdnfdiogfiogjdnfgdfg
 4,수입 (+),2025-12-23,Transfer,100000,�⸸�ȳ� ���޾ֳ�
 5,수입 (+),2026-04-30,Food,1000000,fhiosdhgohifhgiu
 6,수입 (+),2025-12-20,Transfer,100000,isadbfub       iihihui
@@ -10,3 +9,4 @@ id,type,date,category,amount,description
 9,수입 (+),2025-11-30,Food,10000000,fdnglsn fdgnspg
 10,수입 (+),2025-11-30,Food,10000000,dnaglg asdklngs
 11,수입 (+),2025-11-20,Food,100000,fdogmospgpsdfng
+12,수입 (+),2025-12-30,Living,100000,dfspondspanf

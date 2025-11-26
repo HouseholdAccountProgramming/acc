@@ -495,7 +495,7 @@ public class CliInterface {
         if (selectedFormat == ledgerService.getCurrentFormat()) {
             System.out.println("이미 선택된 형식입니다.");
         } else {
-            System.out.printf("%s(으)로 형식을 변경하시겠습니까? (y/N): ", selectedFormat.getDescription());
+			System.out.printf("%s(으)로 형식을 변경하시겠습니까? (Y/N): ", selectedFormat.getDescription());
             String confirm = localScanner.nextLine().trim().toLowerCase();
 
             if (confirm.equals("y") || confirm.equals("yes")) {
